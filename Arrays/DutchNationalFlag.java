@@ -21,47 +21,90 @@
  * elements equal to the pivot, followed by elements greater than the pivot. 
  */
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Collections;
+
 public class DutchNationalFlag {
     public static void main(String[] args) {
-        int[] arr = {0, 1, 0, 2, 1, 0, 2, 1, 2};
-        int[] newArr = dutchNationalFlagApproach1(arr);
-        for(int i = 0; i < newArr.length; i++) {
-            System.out.print(newArr[i] + " ");
-        }
+        List<Integer> arr = new ArrayList<Integer>(Arrays.asList(0, 1, 0, 1, 0, 1));
+        // List<Integer> result = dutchNationalFlagInefficientApproach(arr);
+        // System.out.println(result);
+        // List<Integer> result = dutchNationalFlagMoreEfficientApproach(arr);
+        // System.out.println(result);
+        List<Integer> result = dutchFlagPartition(arr);
+        System.out.println(result);
+        
     }
 
-    // A = {0, 1, 0, 2, 1, 0, 2, 1, 2}
-    public static int[] dutchNationalFlagApproach1(int[] arr) {
-        // find pivot
-        int pivot = arr.length/2;
+    // O(n^2) time
+    public static List<Integer> dutchNationalFlagInefficientApproach(List<Integer> arr) {
 
-        // get elemes smaller than pivot
-        for(int i = 0; i < arr.length; i++) {
-            for(int j = i+1; j < arr.length; j++) {
-                if(arr[j] > pivot) {
-
-                    // swap
-                    int temp = arr[i];
-                    arr[i] = arr[j];
-                    arr[j] = temp;
+        // group elements smaller than the pivot
+        int pivot  = arr.get(0);
+        for(int i = 0; i < arr.size(); i++) {
+            for(int j = i + 1; j < arr.size(); j++) {
+                if(arr.get(i) < pivot) {
+                    Collections.swap(arr, i, j);
+                    break;
                 }
             }
         }
 
-        // get elements larger than pivot
-        for(int i = arr.length -1; i >= 0; i--) {
-            for(int j = i-1; j >= 0; j--) {
-                if(arr[i] > pivot) {
-                    int temp = arr[i];
-                    arr[i] = arr[j];
-                    arr[i] = temp;
+        // group element larger than the pivot
+        for(int i = arr.size() - 1; i >= 0; i--) {
+
+            // stop when we reach an element less than the pivot
+            for(int j = i - 1; j >= 0; j--) {
+                if(arr.get(j) > pivot) {
+                    Collections.swap(arr, i, j);
                     break;
                 }
-                
-            } 
+            }
         }
         return arr;
     }
 
 
+    // In this approach we will only make a single pass and move all elements less than the pivot to the beginning of the list.
+    // In the seconf pass, we move the larger elements to the end. 
+    public static List<Integer> dutchNationalFlagMoreEfficientApproach(List<Integer> arr) {
+        int pivot = arr.get(0);
+        int smaller = 0;
+        for(int i = 0; i < arr.size(); ++i) {
+            if(arr.get(0) < pivot) {
+                Collections.swap(arr, smaller++, i);
+            }
+        }
+
+        // Second pass
+        int larger = arr.size() - 1;
+        for(int i = arr.size() - 1; i >= 0; --i) {
+            if(arr.get(i) > pivot) {
+                Collections.swap(arr, larger--, i);
+            }
+        }
+        return arr;
+    }
+
+
+    public static List<Integer> dutchFlagPartition(List<Integer> arr) {
+        int pivot = arr.get(0);
+        int smaller = 0, equal = 0, larger = arr.size();
+        while(equal < larger) {
+            if(arr.get(equal) < pivot) {
+                Collections.swap(arr, smaller++, equal++);
+            } else if(arr.get(equal) == pivot) {
+                ++equal;
+            } else {
+                Collections.swap(arr, equal, --larger);
+            }
+        }
+        return arr;
+    }
+
+
+
 }
+
